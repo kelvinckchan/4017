@@ -17,9 +17,11 @@ public class PSV {
 
 	private void run() {
 		PBE();
-		Sym();
-		RSA();
-		CheckSum();
+		// Sym();
+		// RSA();
+		// CheckSum();
+
+		System.out.println("Done.");
 	}
 
 	public void PBE() {
@@ -41,6 +43,11 @@ public class PSV {
 		// Use Password to decrypt
 		PBEncrypt.decryptTo(new File("Data/PBEEncrpted.txt"), new File("Data/PBEEncrptedDecrypted.txt"), password);
 		System.out.println("decrypted with password");
+
+		// Use wrong Password to decrypt, can not decrypt
+		PBEncrypt.decryptTo(new File("Data/PBEEncrpted.txt"), new File("Data/PBEWrongDecrypted.txt"), "Wrongpw");
+		System.out.println("decrypted with wrong password");
+
 	}
 
 	public void Sym() {
@@ -53,9 +60,11 @@ public class PSV {
 		// put key in key Object contain other info
 		SymKey symk1 = new SymKey("keyName", "keyInfo", SymEncrypt.genSymKey("AES", 128));
 		SymKey symk2 = new SymKey("keyName", "keyInfo", SymEncrypt.genSymKey("DES", 56));
+		SymKey symk3 = new SymKey("keyName", "keyInfo", DESede168);
 		// Save generated key Object to list
 		symList.add(symk1);
 		symList.add(symk2);
+		symList.add(symk3);
 
 		// select method and SecretKey to Encrypt File and save To smwhere
 		// Method:
@@ -95,22 +104,18 @@ public class PSV {
 		// sign with private key
 		boolean TrueIfSignSucess = AsymEncrypt.sign(new File("Data/FileNeedSigning.txt"),
 				new File("Data/SignatureSaveTo.txt"), SigningMethod, keypair1.getPrivateKey());
-		System.out.println("Signed");
+		System.out.println("Signed> " + TrueIfSignSucess);
 
-		try {
-			// verify with public key, need to be same keypair of the private key that
-			// signed the file
-			boolean isVerifyMatch = AsymEncrypt.verify(new File("Data/FileNeedSigning.txt"),
-					new File("Data/SignatureSaveTo.txt"), SigningMethod, keypair1.getPublicKey());
-			System.out.println("isVerifyMatch> " + isVerifyMatch);
+		// verify with public key, need to be same keypair of the private key that
+		// signed the file
+		boolean isVerifyMatch = AsymEncrypt.verify(new File("Data/FileNeedSigning.txt"),
+				new File("Data/SignatureSaveTo.txt"), SigningMethod, keypair1.getPublicKey());
+		System.out.println("isVerifyMatch> " + isVerifyMatch);
 
-			// Fake Sign cannot Verify
-			boolean isFakeVerifyMatch = AsymEncrypt.verify(new File("Data/FileNeedSigning.txt"),
-					new File("Data/FakeSign.txt"), SigningMethod, keypair1.getPublicKey());
-			System.out.println("isFakeVerifyMatch> " + isFakeVerifyMatch);
-		} catch (Exception e) {
-
-		}
+		// Fake Sign cannot Verify
+		boolean isFakeVerifyMatch = AsymEncrypt.verify(new File("Data/FileNeedSigning.txt"),
+				new File("Data/FakeSign.txt"), SigningMethod, keypair1.getPublicKey());
+		System.out.println("isFakeVerifyMatch> " + isFakeVerifyMatch);
 	}
 
 	public void CheckSum() {
@@ -120,7 +125,6 @@ public class PSV {
 		String hash = CryptoHash.getCheckSum(HashMode, new File("Data/FileNeedSigning.txt"));
 
 		System.out.println("The CheckSum> " + hash);
-
 	}
 
 	public static void main(String[] args) {

@@ -45,52 +45,16 @@ public class SymEncrypt {
 		PSVutility.SaveFile(saveTo, decrypt(method, seckey, PSVutility.ReadFile(file)));
 	}
 
-	public SecretKey readKey(String type, byte[] rawkey) throws Exception {
-		switch (type) {
-		case "DES":
-			return readDESKey(rawkey);
-		case "DESede":
-			return readDESedeKey(rawkey);
-		case "AES":
-			return readAESKey(rawkey);
-		default:
-			return null;
-		}
-	}
-
-	public SecretKey readDESKey(byte[] rawkey) throws Exception {
-		SecretKeyFactory f = SecretKeyFactory.getInstance("DES");
-		SecretKey skey = f.generateSecret(new DESKeySpec(rawkey));
-		return skey;
-	}
-
-	public SecretKey readDESedeKey(byte[] rawkey) throws Exception {
-		SecretKeyFactory f = SecretKeyFactory.getInstance("DESede");
-		SecretKey skey = f.generateSecret(new DESedeKeySpec(rawkey));
-		return skey;
-	}
-
-	public SecretKey readAESKey(byte[] rawkey) throws Exception {
-		SecretKey skey = new SecretKeySpec(rawkey, "AES");
-		return skey;
-	}
-
-	public static boolean needIV(String algo) {
-		if (algo.contains("CBC") || algo.contains("CFB") || algo.contains("OFB") || algo.contains("CTR"))
-			return true;
-		return false;
-	}
-
 	public static byte[] encrypt(String method, SecretKey sKey, byte[] data) {
 		try {
 			Cipher cipher = Cipher.getInstance(sKey.getAlgorithm() + method);
-			if (needIV(cipher.getAlgorithm())) {
+			if (!cipher.getAlgorithm().contains("ECB")) {
 				cipher.init(Cipher.ENCRYPT_MODE, sKey, PSVutility.GetIVSpec(cipher.getBlockSize()));
 			} else {
 				cipher.init(Cipher.ENCRYPT_MODE, sKey);
 			}
 			byte[] iv = cipher.getIV();
-			return iv != null ? PSVutility.concateByte(iv, cipher.doFinal(data)) : cipher.doFinal(data);
+			return iv != null ? PSVutility.addByte(iv, cipher.doFinal(data)) : cipher.doFinal(data);
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException e) {
 			e.printStackTrace();
 		} catch (InvalidKeyException e) {
@@ -108,7 +72,7 @@ public class SymEncrypt {
 	public static byte[] decrypt(String method, SecretKey sKey, byte[] data) {
 		try {
 			Cipher cipher = Cipher.getInstance(sKey.getAlgorithm() + method);
-			if (needIV(cipher.getAlgorithm())) {
+			if (!cipher.getAlgorithm().contains("ECB")) {
 				byte[] iv = Arrays.copyOfRange(data, 0, cipher.getBlockSize());
 				data = Arrays.copyOfRange(data, cipher.getBlockSize(), data.length);
 				cipher.init(Cipher.DECRYPT_MODE, sKey, new IvParameterSpec(iv));

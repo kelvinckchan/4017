@@ -35,7 +35,7 @@ public class PBEncrypt {
 			cipher.init(Cipher.ENCRYPT_MODE, secretkey, new IvParameterSpec(iv));
 			byte[] cipherText = cipher.doFinal(data);
 
-			return PSVutility.concateByte(salt, iv, cipherText);
+			return PSVutility.addByte(salt, iv, cipherText);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
@@ -82,7 +82,7 @@ public class PBEncrypt {
 	public static void genSecret(String newsecret) {
 		File sec = new File("sessionKey");
 		setSecret(newsecret);
-		PSVutility.SaveFile(sec.getAbsolutePath(), encrypt(PSVutility.GetSalt(256)));
+		PSVutility.SaveFile(sec, encrypt(PSVutility.GetSalt(256)));
 	}
 
 	public static void encryptTo(File file, File saveTo) {

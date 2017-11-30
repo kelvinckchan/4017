@@ -13,14 +13,6 @@ import java.util.Random;
 import javax.crypto.spec.IvParameterSpec;
 
 public class PSVutility {
-	public static byte[] ReadFile(String path) {
-		try {
-			return Files.readAllBytes(Paths.get(path));
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
 
 	public static byte[] ReadFile(File file) {
 		try {
@@ -28,14 +20,6 @@ public class PSVutility {
 		} catch (IOException e) {
 			e.printStackTrace();
 			return null;
-		}
-	}
-
-	public static void SaveFile(String path, byte[] data) {
-		try {
-			Files.write(Paths.get(path), data);
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 
@@ -49,14 +33,7 @@ public class PSVutility {
 		}
 	}
 
-	public static String changeExtension(String filePath, String format) {
-		if (filePath.lastIndexOf(".") != -1) {
-			return filePath.replace(filePath.substring(filePath.lastIndexOf(".")), format);
-		}
-		return filePath + format;
-	}
-
-	public static byte[] concateByte(byte[]... b) {
+	public static byte[] addByte(byte[]... b) {
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		for (byte[] byt : b)
 			try {
