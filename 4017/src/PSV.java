@@ -1,13 +1,17 @@
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.security.KeyPair;
 import java.security.Security;
-import java.security.SignatureException;
 import java.util.*;
 
 import javax.crypto.SecretKey;
 
 import Algorithm.*;
-import Object.*;
+import Object.AsyKey;
+import Object.SymKey;
 
 public class PSV {
 
@@ -20,8 +24,45 @@ public class PSV {
 		// Sym();
 		// RSA();
 		// CheckSum();
+		testReadWrite();
 
 		System.out.println("Done.");
+	}
+
+	public void testReadWrite() {
+		System.out.println("Test R/W");
+		// write userlist to file
+		userList.forEach(System.out::println);
+		serialize(userList, "Data/user.ser");
+		userList.clear();
+		System.out.println("Cleared");
+
+		// read userlist from file
+		userList = (List<User>) deserialize("Data/user.ser");
+		userList.forEach(System.out::println);
+		System.out.println("Test R/W Done.");
+	}
+
+	public void serialize(Object obj, String file) {
+		try {
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file, false));
+			out.writeObject(obj);
+			out.close();
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	public Object deserialize(String file) {
+		Object obj = null;
+		try {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));
+			obj = in.readObject();
+			in.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return obj;
 	}
 
 	public void PBE() {
@@ -30,8 +71,12 @@ public class PSV {
 		PBEncrypt.genSecret(password);
 
 		// Create User
-		User u1 = new User().setID("id").setName("Name").setPassword("Password").setRemark("Remark");
+		User u1 = new User("id", "Name1", "p", "r");
 		userList.add(u1);
+		userList.add(new User("id", "Name2", "p", "r"));
+		userList.add(new User("id", "Name3", "p", "r"));
+		userList.add(new User("id", "Name4", "p", "r"));
+		userList.add(new User("id", "Name5", "p", "r"));
 
 		// Use PBE to encrypt
 		PBEncrypt.encryptTo(new File("Data/PBEneedEncrypt.txt"), new File("Data/PBEEncrpted.txt"));
@@ -44,9 +89,10 @@ public class PSV {
 		PBEncrypt.decryptTo(new File("Data/PBEEncrpted.txt"), new File("Data/PBEEncrptedDecrypted.txt"), password);
 		System.out.println("decrypted with password");
 
-		// Use wrong Password to decrypt, can not decrypt
-		PBEncrypt.decryptTo(new File("Data/PBEEncrpted.txt"), new File("Data/PBEWrongDecrypted.txt"), "Wrongpw");
-		System.out.println("decrypted with wrong password");
+		// // Use wrong Password to decrypt, can not decrypt
+		// PBEncrypt.decryptTo(new File("Data/PBEEncrpted.txt"), new
+		// File("Data/PBEWrongDecrypted.txt"), "Wrongpw");
+		// System.out.println("decrypted with wrong password");
 
 	}
 
